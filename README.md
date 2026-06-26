@@ -217,3 +217,230 @@ IIIT Kottayam | VLSI & Embedded Systems
 *Built with Arduino UNO · Part of the IoT Projects series*
 
 </div>
+<div align="center">
+
+# 🌡️ Temperature Monitoring System with LCD Display
+
+### An Arduino-based Real-Time Temperature Monitor using LM35 Sensor and 16×2 LCD
+
+[![Arduino](https://img.shields.io/badge/Arduino-UNO-00979D?style=for-the-badge&logo=arduino&logoColor=white)](https://www.arduino.cc/)
+[![Language](https://img.shields.io/badge/Language-C%2FC%2B%2B-blue?style=for-the-badge&logo=c%2B%2B&logoColor=white)](https://www.arduino.cc/reference/en/)
+[![Platform](https://img.shields.io/badge/Simulated%20on-Tinkercad-F16831?style=for-the-badge)](https://www.tinkercad.com/)
+[![Status](https://img.shields.io/badge/Status-Completed-brightgreen?style=for-the-badge)](#)
+[![Repo](https://img.shields.io/badge/GitHub-Internet__of__Things--projects-181717?style=for-the-badge&logo=github)](https://github.com/Nandhakish0r/Internet_of_Things-projects)
+
+</div>
+
+---
+
+## 📌 Overview
+
+This project builds a **real-time temperature monitoring system** using an **Arduino UNO**, an **LM35 analog temperature sensor**, and a **16×2 LCD display**. The system continuously reads ambient temperature and displays it simultaneously in both **Celsius** and **Fahrenheit** — updating every second.
+
+It demonstrates core IoT concepts: **analog sensor reading**, **ADC-to-voltage conversion**, **unit conversion**, and **real-time display output** — all without any external library for the sensor.
+
+---
+
+## 🧠 Concept & Working Principle
+
+The **LM35** is a precision analog temperature sensor that outputs **10mV per °C**. The Arduino reads this voltage via its **10-bit ADC** on the analog pin, converts it to a temperature value, and drives a 16×2 LCD to display both units.
+
+### Conversion Pipeline
+
+```
+┌──────────────┐     ADC Read      ┌──────────────┐    × (5.0/1023)    ┌──────────────┐
+│  LM35 Sensor │ ────────────────► │  Raw Value   │ ─────────────────► │   Voltage    │
+│  (Analog Out)│                   │  (0 – 1023)  │                    │   (0 – 5V)   │
+└──────────────┘                   └──────────────┘                    └──────┬───────┘
+                                                                              │ × 100
+                                                                              ▼
+                                                                    ┌──────────────────┐
+                                                                    │  Temp in °C      │
+                                                                    │  (V × 100)       │
+                                                                    └────────┬─────────┘
+                                                                             │ × 9/5 + 32
+                                                                             ▼
+                                                                    ┌──────────────────┐
+                                                                    │  Temp in °F      │
+                                                                    └──────────────────┘
+```
+
+### LCD Display Output
+
+```
+┌────────────────┐
+│ C: 45.5°C      │   ← Row 0: Celsius reading
+│ F: 113.9°F     │   ← Row 1: Fahrenheit reading
+└────────────────┘
+  (Updates every 1 second)
+```
+
+> **LM35 Key Spec:** Output voltage = 10mV × Temperature(°C). At 25°C → 250mV output. No calibration needed.
+
+---
+
+## 🔌 Circuit Diagram (Tinkercad Simulation)
+
+> The circuit was first designed and tested on **Tinkercad Circuits** before physical implementation.
+
+| View 1 | View 2 | View 3 |
+|:------:|:------:|:------:|
+| ![Tinkercad 1](t1.png) | ![Tinkercad 2](t2.png) | ![Tinkercad 3](t3.png) |
+
+*Fig 1 — Tinkercad simulation: Arduino UNO + LM35 sensor + 16×2 LCD on breadboard*
+
+### 📍 Pin Configuration
+
+| Arduino Pin | Connected To | Purpose |
+|:-----------:|:------------:|:--------|
+| `A0` | LM35 Output | Analog temperature reading |
+| `12` | LCD RS | Register Select |
+| `11` | LCD E | Enable |
+| `5` | LCD D4 | Data bit 4 |
+| `4` | LCD D5 | Data bit 5 |
+| `3` | LCD D6 | Data bit 6 |
+| `2` | LCD D7 | Data bit 7 |
+| `5V` | LCD VCC + LM35 VCC | Power |
+| `GND` | LCD GND + LM35 GND | Ground |
+| `10kΩ pot` | LCD V0 (contrast) | LCD contrast control |
+
+---
+
+## 🛠️ Hardware Setup
+
+> Physical build using **Arduino UNO**, **LM35 sensor**, **16×2 LCD**, **10kΩ potentiometer**, and a **breadboard**.
+
+| View 1 | View 2 | View 3 |
+|:------:|:------:|:------:|
+| ![Hardware 1](hw1.png) | ![Hardware 2](hw2.png) | ![Hardware 3](hw3.png) |
+
+*Fig 2 — Physical hardware: Arduino UNO with LM35 temperature sensor and 16×2 LCD display*
+
+---
+
+## 🧰 Components Required
+
+| Component | Qty | Purpose |
+|-----------|:---:|---------|
+| Arduino UNO | 1 | Main microcontroller |
+| LM35 Temperature Sensor | 1 | Analog temperature sensing |
+| 16×2 LCD Display | 1 | Display Celsius & Fahrenheit |
+| 10kΩ Potentiometer | 1 | LCD contrast adjustment |
+| Breadboard | 1 | Prototyping base |
+| Jumper Wires | ~20 | Connections |
+| USB Type-B Cable | 1 | Power + code upload |
+
+---
+
+## 💻 Arduino Code
+
+```cpp
+#include <LiquidCrystal.h>
+
+// LCD pin mapping: RS, E, D4, D5, D6, D7
+LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
+
+const int sensorPin = A0;  // LM35 connected to analog pin A0
+
+void setup() {
+  lcd.begin(16, 2);          // Initialize 16-column, 2-row LCD
+  lcd.print("Temperature");  // Splash screen
+  delay(2000);
+  lcd.clear();
+}
+
+void loop() {
+  int sensorValue = analogRead(sensorPin);       // Read ADC (0–1023)
+
+  float voltage = sensorValue * (5.0 / 1023.0); // Convert to voltage (0–5V)
+  float tempC   = voltage * 100.0;               // LM35: 10mV/°C → V × 100 = °C
+  float tempF   = (tempC * 9.0 / 5.0) + 32.0;  // Convert Celsius → Fahrenheit
+
+  // Row 0: Display Celsius
+  lcd.setCursor(0, 0);
+  lcd.print("C: ");
+  lcd.print(tempC, 1);         // 1 decimal place
+  lcd.print((char)223);        // Degree ° symbol (ASCII 223)
+  lcd.print("C   ");           // Trailing spaces clear old digits
+
+  // Row 1: Display Fahrenheit
+  lcd.setCursor(0, 1);
+  lcd.print("F: ");
+  lcd.print(tempF, 1);         // 1 decimal place
+  lcd.print((char)223);        // Degree ° symbol
+  lcd.print("F   ");           // Trailing spaces clear old digits
+
+  delay(1000);                 // Refresh every 1 second
+}
+```
+
+---
+
+## 🚀 How to Run
+
+### Option A — Simulate on Tinkercad *(No hardware needed)*
+
+1. Go to [tinkercad.com](https://www.tinkercad.com) → **Circuits** → **Create new Circuit**
+2. Add **Arduino UNO** + **LM35 sensor** + **16×2 LCD** + **10kΩ potentiometer**
+3. Wire per the pin configuration table above
+4. Click **Code** → paste the Arduino code above
+5. Click **Start Simulation** → adjust potentiometer for LCD contrast
+6. Hover over LM35 in simulation → drag temperature slider to test readings
+
+### Option B — Upload to Physical Arduino
+
+1. Install [Arduino IDE](https://www.arduino.cc/en/software)
+2. Build the circuit on breadboard per pin config table
+3. Connect Arduino UNO via USB
+4. Open Arduino IDE → paste the code
+5. **Tools → Board:** `Arduino UNO` | **Tools → Port:** select correct COM/tty port
+6. Click **Upload** (`Ctrl+U`)
+7. LCD shows splash screen "Temperature" for 2 seconds, then live readings begin
+
+---
+
+## 📊 Sensor Conversion Reference
+
+| ADC Value | Voltage (V) | Temp (°C) | Temp (°F) |
+|:---------:|:-----------:|:---------:|:---------:|
+| 0 | 0.000 | 0.0 | 32.0 |
+| 102 | 0.498 | 49.8 | 121.6 |
+| 205 | 1.001 | 100.1 | 212.2 |
+| 512 | 2.502 | 250.2 | 482.4 |
+| 1023 | 5.000 | 500.0 | 932.0 |
+
+> **Note:** LM35 typical operating range is **−55°C to +150°C** for the full-range variant; the standard LM35 (DZ) operates from **0°C to +100°C**.
+
+---
+
+## 🔍 Limitations & Future Scope
+
+**Current Limitations**
+- No data logging — readings are display-only
+- LM35 limited to line-of-sight ambient sensing
+- No threshold-based alert or alarm
+
+**Future Enhancements**
+- 🔔 **Buzzer alert** — trigger when temperature exceeds a threshold
+- 📊 **Serial plotter** — log and visualize temperature over time via Arduino Serial
+- 💾 **SD card module** — store timestamped readings locally
+- 📡 **ESP8266/ESP32** — push readings to cloud (ThingSpeak, Blynk) for remote monitoring
+- 🌡️ **DHT22** — upgrade sensor to also capture humidity readings
+
+---
+
+## 👤 Author
+
+**Nandakishor** — Electronics & Communication Engineering  
+IIIT Kottayam | VLSI & Embedded Systems
+
+[![GitHub](https://img.shields.io/badge/GitHub-Nandhakish0r-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/Nandhakish0r)
+[![Repo](https://img.shields.io/badge/Repo-Internet__of__Things--projects-blue?style=flat-square&logo=github)](https://github.com/Nandhakish0r/Internet_of_Things-projects)
+
+---
+
+<div align="center">
+
+*Built with ❤️ using Arduino UNO · Part of the IoT Projects series*
+
+</div>
