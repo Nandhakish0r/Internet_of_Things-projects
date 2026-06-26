@@ -214,6 +214,6 @@ IIIT Kottayam | VLSI & Embedded Systems
 
 <div align="center">
 
-*Built with ❤️ using Arduino UNO · Part of the IoT Projects series*
+*Built with Arduino UNO · Part of the IoT Projects series*
 
 </div>
