@@ -56,7 +56,7 @@ The system runs through **4 states** in a loop, each lasting **2 seconds**:
 
 | View 1 | View 2 | View 3 |
 |:------:|:------:|:------:|
-| ![Tinkercad 1](Railway%20Crossing%20Traffic%20Signal%20mechanism/t1.png) | ![Tinkercad 2](Railway%20Crossing%20Traffic%20Signal%20mechanism/t2.png) | ![Tinkercad 3](Railway%20Crossing%20Traffic%20Signal%20mechanism/t3.png) |
+| ![Tinkercad 1](Railway%20_Crossing_Traffic_Signal_mechanism/t1.png) | ![Tinkercad 2](Railway%20_Crossing_Traffic_Signal_mechanism/t2.png) | ![Tinkercad 3](Railway%20_Crossing_Traffic_Signal_mechanism/t3.png) |
 
 *Fig 1 — Tinkercad simulation: Arduino UNO driving Traffic Light LEDs and Train Signal LEDs via breadboard*
 
@@ -78,7 +78,7 @@ The system runs through **4 states** in a loop, each lasting **2 seconds**:
 
 | View 1 | View 2 | View 3 |
 |:------:|:------:|:------:|
-| ![Hardware 1](Railway%20Crossing%20Traffic%20Signal%20mechanism/hw1.png) | ![Hardware 2](Railway%20Crossing%20Traffic%20Signal%20mechanism/hw2.png) | ![Hardware 3](Railway%20Crossing%20Traffic%20Signal%20mechanism/hw3.png) |
+| ![Hardware 1](Railway%20_Crossing_Traffic_Signal_mechanism/hw1.png) | ![Hardware 2](Railway%20_Crossing_Traffic_Signal_mechanism/hw2.png) | ![Hardware 3](Railway%20_Crossing_Traffic_Signal_mechanism/hw3.png) |
 
 *Fig 2 — Physical hardware: Arduino UNO with road + train LED signal circuit on breadboard*
 
