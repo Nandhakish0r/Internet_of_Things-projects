@@ -286,7 +286,7 @@ The **LM35** is a precision analog temperature sensor that outputs **10mV per °
 
 <div align="center">
 
-![Tinkercad Simulation](lcd_temp/tinker.png)
+![Tinkercad Simulation](lcd_temp/tinkerw.png)
 
 *Fig 1 — Tinkercad simulation: Arduino UNO + LM35 sensor + 16×2 LCD on breadboard*
 
