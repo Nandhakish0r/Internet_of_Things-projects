@@ -4,10 +4,11 @@
 
 ### An Arduino-based Automatic Traffic Control System for Railway Level Crossings
 
-![Arduino](https://img.shields.io/badge/Arduino-UNO-00979D?style=for-the-badge&logo=arduino&logoColor=white)
-![Language](https://img.shields.io/badge/Language-C%2FC%2B%2B-blue?style=for-the-badge&logo=c%2B%2B&logoColor=white)
-![Platform](https://img.shields.io/badge/Platform-Tinkercad-orange?style=for-the-badge)
-![Status](https://img.shields.io/badge/Status-Completed-brightgreen?style=for-the-badge)
+[![Arduino](https://img.shields.io/badge/Arduino-UNO-00979D?style=for-the-badge&logo=arduino&logoColor=white)](https://www.arduino.cc/)
+[![Language](https://img.shields.io/badge/Language-C%2FC%2B%2B-blue?style=for-the-badge&logo=c%2B%2B&logoColor=white)](https://www.arduino.cc/reference/en/)
+[![Platform](https://img.shields.io/badge/Simulated%20on-Tinkercad-F16831?style=for-the-badge)](https://www.tinkercad.com/)
+[![Status](https://img.shields.io/badge/Status-Completed-brightgreen?style=for-the-badge)](#)
+[![Repo](https://img.shields.io/badge/GitHub-Internet__of__Things--projects-181717?style=for-the-badge&logo=github)](https://github.com/Nandhakish0r/Internet_of_Things-projects/tree/main/Railway_Crossing_Traffic_Signal_mechanism)
 
 </div>
 
@@ -15,80 +16,77 @@
 
 ## 📌 Overview
 
-This project simulates a **2-way Railway Level Crossing Traffic Signal** using an Arduino UNO. The system automatically controls road traffic signals at a railway crossing — stopping vehicles when a train is approaching and allowing them to pass after the train clears.
+This project simulates a **2-Way Railway Level Crossing Traffic Signal** using an **Arduino UNO**. The system automatically controls road-side traffic signals at a railway level crossing — halting vehicles when a train is passing and releasing them when the track is clear.
 
-It models real-world railway gate logic using **LED traffic lights** controlled in a cyclic sequence, making it safe, predictable, and automatic.
+It models real-world railway gate logic using **5 LEDs** (Red, Yellow, Green for road + Green, Red for train) controlled in a timed cyclic sequence, making the system safe, predictable, and fully automatic.
 
 ---
 
 ## 🧠 Concept & Working Principle
 
-At a **level crossing**, road vehicles and trains share the same intersection. The challenge is to:
-- **Stop road traffic** when a train is approaching or passing
-- **Allow road traffic** to move when the crossing is clear
+At a **level crossing**, road vehicles and trains share the same intersection point. The core challenge:
 
-### How It Works (State Machine Logic)
+- 🚗 **Stop road traffic** when a train is approaching or passing
+- ✅ **Allow road traffic** to move when the crossing is clear
+- 🔄 **Cycle continuously** to keep the intersection safe at all times
 
-The system cycles through **4 states** with a 2-second delay between each:
+### State Machine Logic
+
+The system runs through **4 states** in a loop, each lasting **2 seconds**:
 
 ```
-State 1 → ROAD: RED ON    | TRAIN: GREEN ON   (Train passing, road blocked)
-State 2 → ROAD: YELLOW ON | TRAIN: GREEN ON   (Train still moving, road ready to open)
-State 3 → ROAD: GREEN ON  | TRAIN: RED ON     (Road open, no train)
-State 4 → ROAD: YELLOW ON | TRAIN: RED ON     (Road about to close, prepare to stop)
-   ↓
-[Repeat from State 1]
+┌─────────┬─────────────────┬──────────────────┬──────────────────────────────────┐
+│  State  │   Road Signal   │  Train Signal    │  Meaning                         │
+├─────────┼─────────────────┼──────────────────┼──────────────────────────────────┤
+│    1    │  🔴 RED         │  🟢 GREEN        │  Train passing — road blocked    │
+│    2    │  🟡 YELLOW      │  🟢 GREEN        │  Train clearing — road preparing │
+│    3    │  🟢 GREEN       │  🔴 RED          │  Crossing clear — road open      │
+│    4    │  🟢 GREEN       │  🔴 RED          │  Road about to close             │
+└─────────┴─────────────────┴──────────────────┴──────────────────────────────────┘
+                              ↓ Repeat from State 1
 ```
 
-> **No sensor is used** — the system runs on a timed loop to demonstrate signal cycling. In a real deployment, IR or proximity sensors would trigger state changes.
+> ⚠️ **Note:** No physical sensor is used in this version. The system runs on a **timed loop** to demonstrate the signal cycling logic. In a real deployment, IR sensors or reed switches would detect the train and trigger state transitions dynamically.
 
 ---
 
 ## 🔌 Circuit Diagram (Tinkercad Simulation)
 
-> The circuit was designed and simulated on **Tinkercad Circuits** before physical implementation.
+> The circuit was first designed and tested on **Tinkercad Circuits** before building the physical prototype.
 
 <div align="center">
 
-<table>
-  <tr>
-    <td align="center"><img src="t1.png" width="280"/><br/><sub><b>Tinkercad View 1</b></sub></td>
-    <td align="center"><img src="t2.png" width="280"/><br/><sub><b>Tinkercad View 2</b></sub></td>
-    <td align="center"><img src="t3.png" width="280"/><br/><sub><b>Tinkercad View 3</b></sub></td>
-  </tr>
-</table>
+| View 1 | View 2 | View 3 |
+|:------:|:------:|:------:|
+| ![Tinkercad 1](Railway_Crossing_Traffic_Signal_mechanism/t1.png) | ![Tinkercad 2](Railway_Crossing_Traffic_Signal_mechanism/t2.png) | ![Tinkercad 3](Railway_Crossing_Traffic_Signal_mechanism/t3.png) |
 
-*Fig 1: Tinkercad simulation — Arduino UNO with Traffic Light LEDs and Train Signal LEDs on breadboard*
+*Fig 1 — Tinkercad simulation: Arduino UNO driving Traffic Light LEDs and Train Signal LEDs via breadboard*
 
 </div>
 
-### Pin Configuration
+### 📍 Pin Configuration
 
-| Pin | Color | Signal | Role |
-|-----|-------|--------|------|
-| `11` | 🔴 Red | ROAD | Road Red Light |
-| `12` | 🟡 Yellow | ROAD | Road Yellow Light |
-| `10` | 🟢 Green | ROAD | Road Green Light |
-| `9` | 🟢 Green | TRAIN | Train Green (Clear) |
-| `8` | 🔴 Red | TRAIN | Train Red (Approaching) |
+| Pin | LED Color | Signal Group | Function |
+|:---:|:---------:|:------------:|:---------|
+| `11` | 🔴 Red | ROAD | Road — Stop |
+| `12` | 🟡 Yellow | ROAD | Road — Caution |
+| `10` | 🟢 Green | ROAD | Road — Go |
+| `9` | 🟢 Green | TRAIN | Train — Track Clear |
+| `8` | 🔴 Red | TRAIN | Train — Approaching |
 
 ---
 
 ## 🛠️ Hardware Setup
 
-> Physical implementation using Arduino UNO, LEDs, and resistors on a breadboard.
+> Physical build using **Arduino UNO**, **5 LEDs**, **220Ω resistors**, and a **breadboard**.
 
 <div align="center">
 
-<table>
-  <tr>
-    <td align="center"><img src="hw1.png" width="280"/><br/><sub><b>Hardware View 1</b></sub></td>
-    <td align="center"><img src="hw2.png" width="280"/><br/><sub><b>Hardware View 2</b></sub></td>
-    <td align="center"><img src="hw3.png" width="280"/><br/><sub><b>Hardware View 3</b></sub></td>
-  </tr>
-</table>
+| View 1 | View 2 | View 3 |
+|:------:|:------:|:------:|
+| ![Hardware 1](Railway_Crossing_Traffic_Signal_mechanism/hw1.png) | ![Hardware 2](Railway_Crossing_Traffic_Signal_mechanism/hw2.png) | ![Hardware 3](Railway_Crossing_Traffic_Signal_mechanism/hw3.png) |
 
-*Fig 2: Physical hardware setup — Arduino UNO with LED traffic signal circuit*
+*Fig 2 — Physical hardware: Arduino UNO with road + train LED signal circuit on breadboard*
 
 </div>
 
@@ -96,16 +94,16 @@ State 4 → ROAD: YELLOW ON | TRAIN: RED ON     (Road about to close, prepare to
 
 ## 🧰 Components Required
 
-| Component | Quantity | Purpose |
-|-----------|----------|---------|
-| Arduino UNO | 1 | Microcontroller / Brain |
+| Component | Qty | Purpose |
+|-----------|:---:|---------|
+| Arduino UNO | 1 | Main microcontroller |
 | Red LED | 2 | Road Red + Train Red |
-| Yellow LED | 1 | Road Yellow |
+| Yellow LED | 1 | Road Yellow (caution) |
 | Green LED | 2 | Road Green + Train Green |
-| 220Ω Resistor | 5 | Current limiting for each LED |
-| Breadboard | 1 | Circuit assembly |
+| 220Ω Resistor | 5 | Current limiting per LED |
+| Breadboard | 1 | Prototyping base |
 | Jumper Wires | ~15 | Connections |
-| USB Cable | 1 | Power + programming |
+| USB Type-B Cable | 1 | Power + code upload |
 
 ---
 
@@ -119,50 +117,45 @@ void setup() {
   pinMode(10, OUTPUT);  // GREEN
 
   // Train Signal Pins
-  pinMode(9, OUTPUT);   // GREEN
-  pinMode(8, OUTPUT);   // RED
+  pinMode(9, OUTPUT);   // GREEN (track clear)
+  pinMode(8, OUTPUT);   // RED   (train approaching)
 }
 
 void loop() {
-  // ── STATE 1: Train Passing | Road STOP ──────────────────
-  // ROAD: RED ON
-  digitalWrite(11, HIGH);  // RED   → ON
-  digitalWrite(12, LOW);   // YELLOW → OFF
-  digitalWrite(10, LOW);   // GREEN  → OFF
-  // TRAIN: GREEN (Clear to go)
-  digitalWrite(9, HIGH);   // GREEN → ON
-  digitalWrite(8, LOW);    // RED   → OFF
+
+  // ── STATE 1: Train Passing | Road → STOP ────────────────────
+  digitalWrite(11, HIGH);  // ROAD  RED    → ON
+  digitalWrite(12, LOW);   // ROAD  YELLOW → OFF
+  digitalWrite(10, LOW);   // ROAD  GREEN  → OFF
+  digitalWrite(9,  HIGH);  // TRAIN GREEN  → ON  (clear to pass)
+  digitalWrite(8,  LOW);   // TRAIN RED    → OFF
   delay(2000);
 
-  // ── STATE 2: Train Still Moving | Road WAIT ─────────────
-  // ROAD: YELLOW ON
-  digitalWrite(11, LOW);   // RED    → OFF
-  digitalWrite(12, HIGH);  // YELLOW → ON
-  digitalWrite(10, LOW);   // GREEN  → OFF
-  // TRAIN: GREEN (still clear)
-  digitalWrite(9, HIGH);   // GREEN → ON
-  digitalWrite(8, LOW);    // RED   → OFF
+  // ── STATE 2: Train Clearing | Road → WAIT ───────────────────
+  digitalWrite(11, LOW);   // ROAD  RED    → OFF
+  digitalWrite(12, HIGH);  // ROAD  YELLOW → ON
+  digitalWrite(10, LOW);   // ROAD  GREEN  → OFF
+  digitalWrite(9,  HIGH);  // TRAIN GREEN  → ON  (still moving)
+  digitalWrite(8,  LOW);   // TRAIN RED    → OFF
   delay(2000);
 
-  // ── STATE 3: Crossing Clear | Road GO ───────────────────
-  // ROAD: GREEN ON
-  digitalWrite(11, LOW);   // RED    → OFF
-  digitalWrite(12, LOW);   // YELLOW → OFF
-  digitalWrite(10, HIGH);  // GREEN  → ON
-  // TRAIN: RED (no train)
-  digitalWrite(9, LOW);    // GREEN → OFF
-  digitalWrite(8, HIGH);   // RED   → ON
+  // ── STATE 3: Crossing Clear | Road → GO ─────────────────────
+  digitalWrite(11, LOW);   // ROAD  RED    → OFF
+  digitalWrite(12, LOW);   // ROAD  YELLOW → OFF
+  digitalWrite(10, HIGH);  // ROAD  GREEN  → ON
+  digitalWrite(9,  LOW);   // TRAIN GREEN  → OFF
+  digitalWrite(8,  HIGH);  // TRAIN RED    → ON  (no train)
   delay(2000);
 
-  // ── STATE 4: Road About to Close | WARN ─────────────────
-  // ROAD: YELLOW ON
-  digitalWrite(11, LOW);   // RED    → OFF
-  digitalWrite(12, LOW);   // YELLOW → OFF (note: preparing to close)
-  digitalWrite(10, HIGH);  // GREEN  → ON
-  // TRAIN: RED (approaching)
-  digitalWrite(9, LOW);    // GREEN → OFF
-  digitalWrite(8, HIGH);   // RED   → ON
+  // ── STATE 4: Road Closing Soon | Road → PREPARE ─────────────
+  digitalWrite(11, LOW);   // ROAD  RED    → OFF
+  digitalWrite(12, LOW);   // ROAD  YELLOW → OFF
+  digitalWrite(10, HIGH);  // ROAD  GREEN  → ON  (last chance)
+  digitalWrite(9,  LOW);   // TRAIN GREEN  → OFF
+  digitalWrite(8,  HIGH);  // TRAIN RED    → ON  (train incoming)
   delay(2000);
+
+  // → Loops back to STATE 1
 }
 ```
 
@@ -170,60 +163,65 @@ void loop() {
 
 ## 🚀 How to Run
 
-### 1. Simulate on Tinkercad (No Hardware Needed)
-1. Go to [tinkercad.com](https://www.tinkercad.com) → **Circuits**
-2. Add **Arduino UNO** + **5 LEDs** + **5 resistors** on breadboard
-3. Wire LEDs to pins `8, 9, 10, 11, 12` with 220Ω resistors to GND
-4. Paste the code in the code editor
-5. Click **"Start Simulation"**
+### Option A — Simulate on Tinkercad *(No hardware needed)*
 
-### 2. Physical Hardware Upload
+1. Go to [tinkercad.com](https://www.tinkercad.com) → **Circuits** → **Create new Circuit**
+2. Drag in **Arduino UNO** + **5 LEDs** + **5 × 220Ω resistors** onto the breadboard
+3. Wire each LED anode → resistor → Arduino pins `8, 9, 10, 11, 12`; cathodes to GND
+4. Click **Code** → paste the Arduino code above
+5. Click **Start Simulation** — watch signals cycle
+
+### Option B — Upload to Physical Arduino
+
 1. Install [Arduino IDE](https://www.arduino.cc/en/software)
-2. Connect Arduino UNO via USB
-3. Open Arduino IDE → paste the code
-4. Select **Board:** `Arduino UNO` and correct **Port**
-5. Click **Upload** (`Ctrl+U`)
-6. Observe LEDs cycling through signal states
+2. Build the circuit on breadboard per the pin config table above
+3. Connect Arduino UNO via USB
+4. Open Arduino IDE → paste the code
+5. **Tools → Board:** `Arduino UNO` | **Tools → Port:** select correct COM/tty port
+6. Click **Upload** (`Ctrl+U`)
+7. LEDs begin cycling through the 4 signal states automatically
 
 ---
 
-## 📊 Signal State Table
+## 📊 Signal State Summary
 
-| State | Road Signal | Train Signal | Meaning | Duration |
-|-------|------------|--------------|---------|----------|
-| 1 | 🔴 RED | 🟢 GREEN | Train passing, road blocked | 2 sec |
-| 2 | 🟡 YELLOW | 🟢 GREEN | Train clearing, road preparing | 2 sec |
-| 3 | 🟢 GREEN | 🔴 RED | Crossing clear, road open | 2 sec |
-| 4 | 🟢 GREEN | 🔴 RED | Road about to close again | 2 sec |
+| State | Road | Train | Situation | Duration |
+|:-----:|:----:|:-----:|-----------|:--------:|
+| 1 | 🔴 RED | 🟢 GREEN | Train passing — road fully blocked | 2 sec |
+| 2 | 🟡 YELLOW | 🟢 GREEN | Train clearing — road about to open | 2 sec |
+| 3 | 🟢 GREEN | 🔴 RED | Crossing clear — vehicles may pass | 2 sec |
+| 4 | 🟢 GREEN | 🔴 RED | Road closing soon — train incoming | 2 sec |
 
 ---
 
 ## 🔍 Limitations & Future Scope
 
-**Current Limitations:**
-- Timed loop only — no actual train detection
-- Single crossing, no multi-gate coordination
-- No buzzer/alarm for approaching train warning
+**Current Limitations**
+- Timer-based only — no real train detection
+- Fixed 2-second delays regardless of actual train speed
+- No physical gate barrier mechanism
 
-**Future Enhancements:**
-- Add **IR sensors** or **reed switches** to detect actual train presence
-- Add **servo motor** to control physical crossing gate barrier
-- Include **buzzer** for audio alert when train approaches
-- **LCD display** showing "TRAIN APPROACHING" / "SAFE TO CROSS"
-- IoT integration — **ESP8266/ESP32** for remote monitoring
+**Future Enhancements**
+- 🔭 **IR / Reed switch sensors** — detect actual train presence and trigger state change dynamically
+- 🚧 **Servo motor gate** — physical barrier arm that lifts/drops automatically
+- 🔔 **Buzzer alarm** — audio warning when train is approaching
+- 🖥️ **LCD display** — "TRAIN APPROACHING" / "SAFE TO CROSS" messages
+- 📡 **ESP8266/ESP32** — IoT integration for remote monitoring and alerts
 
 ---
 
 ## 👤 Author
 
-**Nandakishor** — Electronics & Communication Engineering  
-IIIT Kottayam | VLSI & Embedded Systems  
-[![GitHub](https://img.shields.io/badge/GitHub-Nandhakish0r-181717?style=flat&logo=github)](https://github.com/Nandhakish0r/Internet_of_Things-projects)
+**Nandakishor** — Electronics & Communication Engineering
+IIIT Kottayam | VLSI & Embedded Systems
+
+[![GitHub](https://img.shields.io/badge/GitHub-Nandhakish0r-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/Nandhakish0r)
+[![Repo](https://img.shields.io/badge/Repo-Internet__of__Things--projects-blue?style=flat-square&logo=github)](https://github.com/Nandhakish0r/Internet_of_Things-projects)
 
 ---
 
 <div align="center">
 
-*Built with ❤️ using Arduino UNO*
+*Built with Arduino UNO · Part of the IoT Projects series*
 
 </div>
