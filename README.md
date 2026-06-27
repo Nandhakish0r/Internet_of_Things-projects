@@ -482,3 +482,322 @@ IIIT Kottayam | VLSI & Embedded Systems
 *Built with Arduino UNO · Part of the IoT Projects series*
 
 </div>
+<div align="center">
+
+# 🔊 Ultrasonic Sensor Based Intruder Detection System
+
+### An Arduino-based Proximity-Triggered Security System with Buzzer, LED & Relay Actuation
+
+[![Arduino](https://img.shields.io/badge/Arduino-UNO-00979D?style=for-the-badge&logo=arduino&logoColor=white)](https://www.arduino.cc/)
+[![Language](https://img.shields.io/badge/Language-C%2FC%2B%2B-blue?style=for-the-badge&logo=c%2B%2B&logoColor=white)](https://www.arduino.cc/reference/en/)
+[![Sensor](https://img.shields.io/badge/Sensor-HC--SR04-purple?style=for-the-badge)](#)
+[![Platform](https://img.shields.io/badge/Simulated%20on-Tinkercad-F16831?style=for-the-badge)](https://www.tinkercad.com/)
+[![Status](https://img.shields.io/badge/Status-Completed-brightgreen?style=for-the-badge)](#)
+[![Repo](https://img.shields.io/badge/GitHub-Internet__of__Things--projects-181717?style=for-the-badge&logo=github)](https://github.com/Nandhakish0r/Internet_of_Things-projects)
+
+</div>
+
+---
+
+## 📌 Overview
+
+This project implements an **ultrasonic sensor-based intruder detection and actuation system** using an **Arduino UNO** and an **HC-SR04 ultrasonic sensor**. When an object or person enters within a defined proximity threshold (30 cm), the system triggers a **buzzer alarm**, activates an **LED indicator**, and optionally engages a **relay** for external device control (locks, sirens, etc.).
+
+Distance readings are continuously logged to the **Serial Monitor** and displayed on a **16×2 LCD**, making the system suitable for embedded security, access control, and proximity sensing applications.
+
+---
+
+## 🧠 Concept & Working Principle
+
+The **HC-SR04** measures distance using **ultrasonic sound waves**. It emits a 40kHz pulse from the TRIG pin and listens for the echo on the ECHO pin. The time taken for the pulse to return is used to calculate distance.
+
+### Distance Measurement Pipeline
+
+```
+┌─────────────┐  10µs pulse  ┌──────────────┐  Sound wave  ┌────────────┐
+│  Arduino    │ ────────────► │  HC-SR04     │ ────────────► │  Object   │
+│  TRIG Pin 9 │              │  TRIG        │              └─────┬──────┘
+└─────────────┘              └──────────────┘                    │ Echo
+                                                                  ▼
+┌─────────────┐  pulseIn()   ┌──────────────┐  duration × 0.034 / 2
+│  Arduino    │ ◄──────────── │  HC-SR04     │ ──────────────────────► Distance (cm)
+│  ECHO Pin 10│              │  ECHO        │
+└─────────────┘              └──────────────┘
+```
+
+### Detection Logic
+
+```
+┌──────────────────────────────────────────────────┐
+│           Distance Measurement Loop              │
+│                                                  │
+│   distance < 30 cm ?                             │
+│         │                                        │
+│    YES ──┼──► LED ON + BUZZER ON + RELAY ON      │
+│         │     (Intruder Detected!)               │
+│    NO  ──┼──► LED OFF + BUZZER OFF + RELAY OFF   │
+│               (Zone Clear)                       │
+└──────────────────────────────────────────────────┘
+         ↓ Repeat every 200ms
+```
+
+### HC-SR04 Sensor Specs
+
+| Parameter | Value |
+|-----------|-------|
+| Interface | Digital (TRIG + ECHO) |
+| Operating Voltage | 5V DC |
+| Measuring Range | 2 cm – 400 cm |
+| Accuracy | ±3 mm |
+| Trigger Pulse Width | 10 µs |
+| Ultrasonic Frequency | 40 kHz |
+| Beam Angle | ~15° |
+
+---
+
+## 🔌 Circuit Diagram (Tinkercad Simulation)
+
+> The circuit was first designed and tested on **Tinkercad Circuits** before physical implementation.
+
+<div align="center">
+
+![Tinkercad Simulation](ur_lcd_buzzer/tink.png)
+
+*Fig 1 — Tinkercad simulation: Arduino UNO + HC-SR04 + Buzzer + LED + Relay on breadboard*
+
+</div>
+
+### 📍 Pin Configuration
+
+| Arduino Pin | Connected To | Purpose |
+|:-----------:|:------------:|:--------|
+| `9` | HC-SR04 TRIG | Trigger pulse output |
+| `10` | HC-SR04 ECHO | Echo pulse input |
+| `6` | Buzzer (+) | Alarm buzzer |
+| `5` | LED (+) | Intruder indicator LED |
+| `7` | Relay IN | Optional relay (lock/siren) |
+| `5V` | HC-SR04 VCC + LCD VCC | Power supply |
+| `GND` | HC-SR04 GND + all GND | Ground |
+| `1` | LCD RS | Register Select |
+| `2` | LCD E | Enable |
+| `4` | LCD D4 | Data bit 4 |
+| `5` | LCD D5 | Data bit 5 |
+| `6` | LCD D6 | Data bit 6 |
+| `7` | LCD D7 | Data bit 7 |
+
+---
+
+## 🛠️ Hardware Setup
+
+> Physical build using **Arduino UNO**, **HC-SR04 ultrasonic sensor**, **buzzer**, **LED**, **relay module**, and a **breadboard**.
+
+| View 1 | View 2 | View 3 |
+|:------:|:------:|:------:|
+| ![Hardware 1](ur_lcd_buzzer/hw1.png) | ![Hardware 2](ur_lcd_buzzer/hw2.png) | ![Hardware 3](ur_lcd_buzzer/hw3.png) |
+
+*Fig 2 — Physical hardware: Arduino UNO with HC-SR04 ultrasonic sensor, breadboard, and actuation components*
+
+---
+
+## 🧰 Components Required
+
+| Component | Qty | Purpose |
+|-----------|:---:|---------|
+| Arduino UNO | 1 | Main microcontroller |
+| HC-SR04 Ultrasonic Sensor | 1 | Distance measurement |
+| Active Buzzer | 1 | Audio alarm on detection |
+| LED (Red) | 1 | Visual intruder indicator |
+| Relay Module (5V) | 1 | Trigger external alarm/lock (optional) |
+| 220Ω Resistor | 1 | Current limiting for LED |
+| 16×2 LCD Display | 1 | Display live distance readings |
+| Breadboard | 1 | Prototyping base |
+| Jumper Wires | ~20 | Connections |
+| USB Type-B Cable | 1 | Power + code upload |
+
+---
+
+## 💻 Arduino Code
+
+### Hardware Code (with Serial Monitor + LED + Buzzer + Relay)
+
+```cpp
+#define TRIG_PIN   9
+#define ECHO_PIN   10
+#define BUZZER_PIN 6
+#define LED_PIN    5
+#define RELAY_PIN  7   // Optional: activate external lock/alarm
+
+long duration;
+int  distance;
+
+void setup() {
+  pinMode(TRIG_PIN,   OUTPUT);
+  pinMode(ECHO_PIN,   INPUT);
+  pinMode(BUZZER_PIN, OUTPUT);
+  pinMode(LED_PIN,    OUTPUT);
+  pinMode(RELAY_PIN,  OUTPUT);
+
+  digitalWrite(BUZZER_PIN, LOW);
+  digitalWrite(LED_PIN,    LOW);
+  digitalWrite(RELAY_PIN,  LOW);
+
+  Serial.begin(9600);
+}
+
+void loop() {
+  // ── Trigger ultrasonic pulse ─────────────────────────────
+  digitalWrite(TRIG_PIN, LOW);
+  delayMicroseconds(2);
+  digitalWrite(TRIG_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN, LOW);
+
+  // ── Read echo and calculate distance ────────────────────
+  duration = pulseIn(ECHO_PIN, HIGH);
+  distance = duration * 0.034 / 2;    // Speed of sound: 0.034 cm/µs, divide by 2 (round trip)
+
+  Serial.print("Distance: ");
+  Serial.print(distance);
+  Serial.println(" cm");
+
+  // ── Intruder detection: trigger if within 30 cm ─────────
+  if (distance > 0 && distance < 30) {
+    digitalWrite(LED_PIN,    HIGH);   // LED ON
+    digitalWrite(BUZZER_PIN, HIGH);   // Buzzer ON
+    digitalWrite(RELAY_PIN,  HIGH);   // Relay ON (activate lock/alarm)
+    delay(500);
+  } else {
+    digitalWrite(LED_PIN,    LOW);    // LED OFF
+    digitalWrite(BUZZER_PIN, LOW);    // Buzzer OFF
+    digitalWrite(RELAY_PIN,  LOW);    // Relay OFF
+  }
+
+  delay(200);  // Polling interval
+}
+```
+
+### Tinkercad Code (with LCD Display)
+
+```cpp
+#define BUZZER_PIN 6
+#include <LiquidCrystal.h>
+
+// LCD pin mapping: RS, E, D4, D5, D6, D7
+LiquidCrystal lcd(1, 2, 4, 5, 6, 7);
+
+const int trigPin = 9;
+const int echoPin = 10;
+long duration;
+int  distance;
+
+void setup() {
+  lcd.begin(16, 2);              // 16-col, 2-row LCD
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+  pinMode(BUZZER_PIN, OUTPUT);
+}
+
+void loop() {
+  // ── Trigger pulse ────────────────────────────────────────
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+
+  // ── Calculate distance ───────────────────────────────────
+  duration = pulseIn(echoPin, HIGH);
+  distance = duration * 0.034 / 2;
+
+  // ── Display on LCD ───────────────────────────────────────
+  lcd.setCursor(0, 0);
+  lcd.print("Distance: ");
+  lcd.print(distance);
+  lcd.print(" cm  ");           // Trailing spaces clear old digits
+
+  // ── Buzzer alert if intruder within 30 cm ───────────────
+  if (distance > 0 && distance < 30) {
+    digitalWrite(BUZZER_PIN, HIGH);
+    delay(500);
+  } else {
+    digitalWrite(BUZZER_PIN, LOW);
+  }
+
+  delay(200);
+}
+```
+
+> **Bug fix note:** The original condition `distance < 0 && distance > 30` is logically impossible (a number cannot be both negative and greater than 30 simultaneously). Corrected to `distance > 0 && distance < 30` — triggers alarm when object is between 0 and 30 cm.
+
+---
+
+## 🚀 How to Run
+
+### Option A — Simulate on Tinkercad *(No hardware needed)*
+
+1. Go to [tinkercad.com](https://www.tinkercad.com) → **Circuits** → **Create new Circuit**
+2. Add **Arduino UNO** + **HC-SR04** + **Buzzer** + **16×2 LCD** on breadboard
+3. Wire per the pin configuration table above
+4. Click **Code** → switch to **Text** mode → paste the **Tinkercad code** above
+5. Click **Start Simulation** → move an object near the HC-SR04 in simulation
+6. LCD updates live distance; buzzer triggers when object is within 30 cm
+
+### Option B — Upload to Physical Arduino
+
+1. Install [Arduino IDE](https://www.arduino.cc/en/software)
+2. Build circuit on breadboard per pin config table
+3. Connect Arduino UNO via USB
+4. Open Arduino IDE → paste the **Hardware code** above
+5. **Tools → Board:** `Arduino UNO` | **Tools → Port:** select correct COM/tty port
+6. Click **Upload** (`Ctrl+U`)
+7. Open **Serial Monitor** (`Ctrl+Shift+M`) at **9600 baud** → watch live distance readings
+8. Bring hand within 30 cm of HC-SR04 → LED + buzzer + relay activate
+
+---
+
+## 📊 Serial Monitor Output (Sample)
+
+```
+Distance: 43 cm    → Clear
+Distance: 41 cm    → Clear
+Distance: 5 cm     → ⚠️ INTRUDER DETECTED (Buzzer + LED ON)
+Distance: 6 cm     → ⚠️ INTRUDER DETECTED
+Distance: 42 cm    → Clear
+Distance: 38 cm    → Clear
+```
+
+---
+
+## 🔍 Limitations & Future Scope
+
+**Current Limitations**
+- Fixed 30 cm threshold — not adjustable without code change
+- No data logging or timestamped event records
+- HC-SR04 beam angle (~15°) may miss objects outside the cone
+- Single-zone detection only
+
+**Future Enhancements**
+- 🎛️ **Potentiometer threshold** — adjust detection range dynamically without re-uploading
+- 📱 **GSM/ESP8266 alert** — send SMS or push notification when intruder detected
+- 📷 **Camera module** — capture image on detection trigger
+- 🗺️ **Multi-zone coverage** — multiple HC-SR04 sensors covering wider area
+- 💾 **SD card logging** — timestamped intruder event records
+- 📡 **IoT dashboard** — real-time monitoring via ThingSpeak or Blynk
+
+---
+
+## 👤 Author
+
+**Nandakishor** — Electronics & Communication Engineering  
+IIIT Kottayam | VLSI & Embedded Systems
+
+[![GitHub](https://img.shields.io/badge/GitHub-Nandhakish0r-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/Nandhakish0r)
+[![Repo](https://img.shields.io/badge/Repo-Internet__of__Things--projects-blue?style=flat-square&logo=github)](https://github.com/Nandhakish0r/Internet_of_Things-projects)
+
+---
+
+<div align="center">
+
+*Built using Arduino UNO · Part of the IoT Projects series*
+
+</div>
