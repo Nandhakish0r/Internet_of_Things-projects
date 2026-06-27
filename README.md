@@ -296,7 +296,7 @@ The **DHT11** is a digital temperature and humidity sensor that uses a **single-
 
 <div align="center">
 
-![Tinkercad Simulation](lcd_temp/tinkerW.png)
+![Tinkercad Simulation](lcd_temp/tinkerw.png)
 
 *Fig 1 — Tinkercad simulation: Arduino UNO + DHT11 sensor + 16×2 LCD on breadboard*
 
