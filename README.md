@@ -221,12 +221,15 @@ IIIT Kottayam | VLSI & Embedded Systems
 
 <div align="center">
 
+<div align="center">
+
 # 🌡️ Temperature Monitoring System with LCD Display
 
-### An Arduino-based Real-Time Temperature Monitor using LM35 Sensor and 16×2 LCD
+### An Arduino-based Real-Time Temperature & Humidity Monitor using DHT11 Sensor and 16×2 LCD
 
 [![Arduino](https://img.shields.io/badge/Arduino-UNO-00979D?style=for-the-badge&logo=arduino&logoColor=white)](https://www.arduino.cc/)
 [![Language](https://img.shields.io/badge/Language-C%2FC%2B%2B-blue?style=for-the-badge&logo=c%2B%2B&logoColor=white)](https://www.arduino.cc/reference/en/)
+[![Sensor](https://img.shields.io/badge/Sensor-DHT11-red?style=for-the-badge)](#)
 [![Platform](https://img.shields.io/badge/Simulated%20on-Tinkercad-F16831?style=for-the-badge)](https://www.tinkercad.com/)
 [![Status](https://img.shields.io/badge/Status-Completed-brightgreen?style=for-the-badge)](#)
 [![Repo](https://img.shields.io/badge/GitHub-Internet__of__Things--projects-181717?style=for-the-badge&logo=github)](https://github.com/Nandhakish0r/Internet_of_Things-projects)
@@ -237,46 +240,53 @@ IIIT Kottayam | VLSI & Embedded Systems
 
 ## 📌 Overview
 
-This project builds a **real-time temperature monitoring system** using an **Arduino UNO**, an **LM35 analog temperature sensor**, and a **16×2 LCD display**. The system continuously reads ambient temperature and displays it simultaneously in both **Celsius** and **Fahrenheit** — updating every second.
+This project builds a **real-time temperature and humidity monitoring system** using an **Arduino UNO**, a **DHT11 digital sensor**, and a **16×2 LCD display**. The system continuously reads ambient temperature in both **Celsius** and **Fahrenheit** alongside **relative humidity** — updating every 2 seconds.
 
-It demonstrates core IoT concepts: **analog sensor reading**, **ADC-to-voltage conversion**, **unit conversion**, and **real-time display output** — all without any external library for the sensor.
+It demonstrates core IoT concepts: **digital sensor communication**, **single-wire protocol**, **library-based sensor interfacing**, and **real-time LCD output**.
 
 ---
 
 ## 🧠 Concept & Working Principle
 
-The **LM35** is a precision analog temperature sensor that outputs **10mV per °C**. The Arduino reads this voltage via its **10-bit ADC** on the analog pin, converts it to a temperature value, and drives a 16×2 LCD to display both units.
+The **DHT11** is a digital temperature and humidity sensor that uses a **single-wire serial protocol** to send calibrated data to the microcontroller. Unlike analog sensors, no ADC conversion is needed — the Arduino receives ready-to-use digital values via the `DHT` library.
 
-### Conversion Pipeline
+### How DHT11 Works
 
 ```
-┌──────────────┐    ADC Read     ┌──────────────┐   × (5.0/1023)   ┌──────────────┐
-│  LM35 Sensor │ ──────────────► │  Raw Value   │ ───────────────► │   Voltage    │
-│  (Analog Out)│                 │  (0 – 1023)  │                  │   (0 – 5V)   │
-└──────────────┘                 └──────────────┘                  └──────┬───────┘
-                                                                           │ × 100
-                                                                           ▼
-                                                                 ┌──────────────────┐
-                                                                 │  Temp in °C      │
-                                                                 └────────┬─────────┘
-                                                                          │ × 9/5 + 32
-                                                                          ▼
-                                                                 ┌──────────────────┐
-                                                                 │  Temp in °F      │
-                                                                 └──────────────────┘
+┌──────────────┐   Single-Wire    ┌────────────────────┐   DHT library   ┌──────────────────┐
+│  DHT11       │  Digital Signal  │   Arduino UNO      │ ──────────────► │  tempC, tempF,   │
+│  Sensor      │ ───────────────► │   (Digital Pin)    │                 │  humidity values │
+│  (Temp+Hum)  │                  │                    │                 └────────┬─────────┘
+└──────────────┘                  └────────────────────┘                          │
+                                                                                  ▼
+                                                                       ┌──────────────────────┐
+                                                                       │   16×2 LCD Display   │
+                                                                       │  Row 0: T:25.0C 77F  │
+                                                                       │  Row 1: H: 60%       │
+                                                                       └──────────────────────┘
 ```
+
+### DHT11 Sensor Specs
+
+| Parameter | Value |
+|-----------|-------|
+| Interface | Single-wire digital |
+| Temperature Range | 0°C to 50°C |
+| Temperature Accuracy | ±2°C |
+| Humidity Range | 20% to 90% RH |
+| Humidity Accuracy | ±5% RH |
+| Sampling Rate | 1 reading per second (use ≥ 2s delay) |
+| Operating Voltage | 3.3V – 5V |
 
 ### LCD Display Output
 
 ```
-┌────────────────┐
-│ C: 45.5°C      │   ← Row 0: Celsius reading
-│ F: 113.9°F     │   ← Row 1: Fahrenheit reading
-└────────────────┘
-  (Updates every 1 second)
+┌─────────────────┐
+│ T:25.0C  77.0F  │   ← Row 0: Temperature (°C and °F)
+│ H: 60%          │   ← Row 1: Relative Humidity
+└─────────────────┘
+  (Updates every 2 seconds)
 ```
-
-> **LM35 Key Spec:** Output voltage = 10mV × Temperature(°C). At 25°C → 250mV output. No calibration needed.
 
 ---
 
@@ -286,9 +296,9 @@ The **LM35** is a precision analog temperature sensor that outputs **10mV per °
 
 <div align="center">
 
-![Tinkercad Simulation](lcd_temp/tinkerw.png)
+![Tinkercad Simulation](lcd_temp/tinkerW.png)
 
-*Fig 1 — Tinkercad simulation: Arduino UNO + LM35 sensor + 16×2 LCD on breadboard*
+*Fig 1 — Tinkercad simulation: Arduino UNO + DHT11 sensor + 16×2 LCD on breadboard*
 
 </div>
 
@@ -296,28 +306,32 @@ The **LM35** is a precision analog temperature sensor that outputs **10mV per °
 
 | Arduino Pin | Connected To | Purpose |
 |:-----------:|:------------:|:--------|
-| `A0` | LM35 Output | Analog temperature reading |
+| `7` | DHT11 Data | Digital temperature & humidity data |
+| `5V` | DHT11 VCC | Sensor power supply |
+| `GND` | DHT11 GND | Sensor ground |
 | `12` | LCD RS | Register Select |
 | `11` | LCD E | Enable |
 | `5` | LCD D4 | Data bit 4 |
 | `4` | LCD D5 | Data bit 5 |
 | `3` | LCD D6 | Data bit 6 |
 | `2` | LCD D7 | Data bit 7 |
-| `5V` | LCD VCC + LM35 VCC | Power supply |
-| `GND` | LCD GND + LM35 GND | Ground |
+| `5V` | LCD VCC | LCD power supply |
+| `GND` | LCD GND | LCD ground |
 | `10kΩ pot` | LCD V0 | LCD contrast control |
+
+> **Note:** A **10kΩ pull-up resistor** between DHT11 Data pin and 5V is recommended for stable readings.
 
 ---
 
 ## 🛠️ Hardware Setup
 
-> Physical build using **Arduino UNO**, **LM35 sensor**, **16×2 LCD**, **10kΩ potentiometer**, and a **breadboard**.
+> Physical build using **Arduino UNO**, **DHT11 sensor**, **16×2 LCD**, **10kΩ potentiometer**, and a **breadboard**.
 
 <div align="center">
 
 ![Hardware Setup](lcd_temp/hw.png)
 
-*Fig 2 — Physical hardware: Arduino UNO with LM35 temperature sensor and 16×2 LCD display*
+*Fig 2 — Physical hardware: Arduino UNO with DHT11 temperature & humidity sensor and 16×2 LCD display*
 
 </div>
 
@@ -328,9 +342,10 @@ The **LM35** is a precision analog temperature sensor that outputs **10mV per °
 | Component | Qty | Purpose |
 |-----------|:---:|---------|
 | Arduino UNO | 1 | Main microcontroller |
-| LM35 Temperature Sensor | 1 | Analog temperature sensing |
-| 16×2 LCD Display | 1 | Display Celsius & Fahrenheit |
+| DHT11 Sensor | 1 | Digital temperature & humidity sensing |
+| 16×2 LCD Display | 1 | Display temperature and humidity |
 | 10kΩ Potentiometer | 1 | LCD contrast adjustment |
+| 10kΩ Resistor | 1 | Pull-up for DHT11 data line |
 | Breadboard | 1 | Prototyping base |
 | Jumper Wires | ~20 | Connections |
 | USB Type-B Cable | 1 | Power + code upload |
@@ -339,43 +354,60 @@ The **LM35** is a precision analog temperature sensor that outputs **10mV per °
 
 ## 💻 Arduino Code
 
+> Requires the **DHT sensor library** by Adafruit. Install via Arduino IDE: `Sketch → Include Library → Manage Libraries → search "DHT sensor library"`.
+
 ```cpp
 #include <LiquidCrystal.h>
+#include <DHT.h>
 
 // LCD pin mapping: RS, E, D4, D5, D6, D7
 LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
 
-const int sensorPin = A0;  // LM35 connected to analog pin A0
+#define DHTPIN  7         // DHT11 data pin connected to digital pin 7
+#define DHTTYPE DHT11     // Sensor type: DHT11
+
+DHT dht(DHTPIN, DHTTYPE); // Initialize DHT sensor object
 
 void setup() {
-  lcd.begin(16, 2);          // Initialize 16-column, 2-row LCD
-  lcd.print("Temperature");  // Splash screen on startup
+  lcd.begin(16, 2);           // Initialize 16-column, 2-row LCD
+  dht.begin();                // Start DHT11 sensor
+  lcd.print("Temp & Humidity"); // Splash screen
   delay(2000);
   lcd.clear();
 }
 
 void loop() {
-  int sensorValue = analogRead(sensorPin);        // Read ADC (0–1023)
+  float humidity = dht.readHumidity();         // Read humidity (%)
+  float tempC    = dht.readTemperature();      // Read temperature in Celsius
+  float tempF    = dht.readTemperature(true);  // Read temperature in Fahrenheit
 
-  float voltage = sensorValue * (5.0 / 1023.0);  // Convert to voltage (0–5V)
-  float tempC   = voltage * 100.0;                // LM35: 10mV/°C → V × 100 = °C
-  float tempF   = (tempC * 9.0 / 5.0) + 32.0;   // Convert Celsius → Fahrenheit
+  // Check for failed readings
+  if (isnan(humidity) || isnan(tempC) || isnan(tempF)) {
+    lcd.setCursor(0, 0);
+    lcd.print("Sensor Error!   ");
+    lcd.setCursor(0, 1);
+    lcd.print("Check wiring    ");
+    delay(2000);
+    return;
+  }
 
-  // Row 0: Display Celsius
+  // Row 0: Temperature (Celsius and Fahrenheit)
   lcd.setCursor(0, 0);
-  lcd.print("C: ");
-  lcd.print(tempC, 1);       // 1 decimal place
-  lcd.print((char)223);      // Degree ° symbol (ASCII 223)
-  lcd.print("C   ");         // Trailing spaces clear old digits
+  lcd.print("T:");
+  lcd.print(tempC, 1);        // 1 decimal place
+  lcd.print((char)223);       // Degree ° symbol (ASCII 223)
+  lcd.print("C ");
+  lcd.print(tempF, 1);
+  lcd.print((char)223);
+  lcd.print("F");
 
-  // Row 1: Display Fahrenheit
+  // Row 1: Humidity
   lcd.setCursor(0, 1);
-  lcd.print("F: ");
-  lcd.print(tempF, 1);       // 1 decimal place
-  lcd.print((char)223);      // Degree ° symbol
-  lcd.print("F   ");         // Trailing spaces clear old digits
+  lcd.print("H: ");
+  lcd.print(humidity, 1);     // 1 decimal place
+  lcd.print("%       ");      // Trailing spaces clear old digits
 
-  delay(1000);               // Refresh every 1 second
+  delay(2000);                // DHT11 needs minimum 2s between reads
 }
 ```
 
@@ -386,51 +418,52 @@ void loop() {
 ### Option A — Simulate on Tinkercad *(No hardware needed)*
 
 1. Go to [tinkercad.com](https://www.tinkercad.com) → **Circuits** → **Create new Circuit**
-2. Add **Arduino UNO** + **LM35 sensor** + **16×2 LCD** + **10kΩ potentiometer**
-3. Wire per the pin configuration table above
-4. Click **Code** → paste the Arduino code
+2. Add **Arduino UNO** + **DHT11 sensor** + **16×2 LCD** + **10kΩ potentiometer**
+3. Wire per the pin configuration table above; add 10kΩ pull-up on DHT11 data pin
+4. Click **Code** → switch to **Text** mode → paste the Arduino code
 5. Click **Start Simulation** → adjust potentiometer for LCD contrast
-6. Hover over LM35 → drag temperature slider to see live readings update
+6. Click on DHT11 in simulation → adjust temperature/humidity sliders to see live readings
 
 ### Option B — Upload to Physical Arduino
 
 1. Install [Arduino IDE](https://www.arduino.cc/en/software)
-2. Build the circuit on breadboard per pin config table
-3. Connect Arduino UNO via USB
-4. Open Arduino IDE → paste the code
-5. **Tools → Board:** `Arduino UNO` | **Tools → Port:** select correct COM/tty port
-6. Click **Upload** (`Ctrl+U`)
-7. LCD shows "Temperature" splash for 2 seconds, then live readings begin
+2. Install DHT library: **Sketch → Include Library → Manage Libraries** → search `DHT sensor library` by Adafruit → Install (also install `Adafruit Unified Sensor` when prompted)
+3. Build the circuit on breadboard per pin config table
+4. Connect Arduino UNO via USB
+5. Open Arduino IDE → paste the code
+6. **Tools → Board:** `Arduino UNO` | **Tools → Port:** select correct COM/tty port
+7. Click **Upload** (`Ctrl+U`)
+8. LCD shows splash "Temp & Humidity" for 2 seconds, then live readings begin
 
 ---
 
-## 📊 Sensor Conversion Reference
+## 📊 DHT11 Reading Reference
 
-| ADC Value | Voltage (V) | Temp (°C) | Temp (°F) |
-|:---------:|:-----------:|:---------:|:---------:|
-| 0 | 0.000 | 0.0 | 32.0 |
-| 102 | 0.498 | 49.8 | 121.6 |
-| 205 | 1.001 | 100.1 | 212.2 |
-| 512 | 2.502 | 250.2 | 482.4 |
-| 1023 | 5.000 | 500.0 | 932.0 |
+| Condition | Temp (°C) | Temp (°F) | Humidity (%) |
+|-----------|:---------:|:---------:|:------------:|
+| Cold room | 15.0 | 59.0 | 40% |
+| Room temperature | 25.0 | 77.0 | 55% |
+| Warm room | 35.0 | 95.0 | 70% |
+| Hot & humid | 45.0 | 113.0 | 85% |
 
-> **Note:** Standard LM35 (DZ suffix) operates from **0°C to +100°C**. Full-range variant supports **−55°C to +150°C**.
+> **DHT11 vs DHT22:** DHT11 is lower cost with ±2°C accuracy. DHT22 offers wider range (−40°C to +80°C) and ±0.5°C accuracy — a drop-in upgrade for this project.
 
 ---
 
 ## 🔍 Limitations & Future Scope
 
 **Current Limitations**
-- No data logging — readings are display-only, not stored
-- LM35 limited to ambient sensing only
-- No threshold-based alert or alarm system
+- DHT11 limited to 0°C – 50°C range with ±2°C accuracy
+- No data logging — readings are display-only
+- Minimum 2-second sampling interval (sensor hardware constraint)
+- No threshold-based alert or alarm
 
 **Future Enhancements**
-- 🔔 **Buzzer alert** — trigger when temperature exceeds a set threshold
-- 📊 **Serial plotter** — visualize temperature trends via Arduino Serial Monitor
+- 🔔 **Buzzer alert** — trigger when temperature or humidity exceeds threshold
+- 📊 **Serial plotter** — visualize trends via Arduino Serial Monitor
 - 💾 **SD card module** — log timestamped readings locally
 - 📡 **ESP8266/ESP32** — push data to cloud (ThingSpeak, Blynk) for remote monitoring
-- 🌡️ **DHT22 upgrade** — capture humidity alongside temperature
+- 🌡️ **DHT22 upgrade** — wider range and higher accuracy drop-in replacement
 
 ---
 
