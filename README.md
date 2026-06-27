@@ -801,3 +801,212 @@ IIIT Kottayam | VLSI & Embedded Systems
 *Built using Arduino UNO · Part of the IoT Projects series*
 
 </div>
+<div align="center">
+
+# 💡 LDR Based Automatic Light Control System
+
+### A Raspberry Pi Pico-based Ambient Light Sensor that Automatically Turns LED On in Dark
+
+[![Platform](https://img.shields.io/badge/Platform-Raspberry%20Pi%20Pico-C51A4A?style=for-the-badge&logo=raspberrypi&logoColor=white)](https://www.raspberrypi.com/products/raspberry-pi-pico/)
+[![Language](https://img.shields.io/badge/Language-MicroPython-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://micropython.org/)
+[![Sensor](https://img.shields.io/badge/Sensor-LDR%20Module-yellow?style=for-the-badge)](#)
+[![Simulated on](https://img.shields.io/badge/Simulated%20on-Wokwi-green?style=for-the-badge)](https://wokwi.com/)
+[![Status](https://img.shields.io/badge/Status-Completed-brightgreen?style=for-the-badge)](#)
+[![Repo](https://img.shields.io/badge/GitHub-Internet__of__Things--projects-181717?style=for-the-badge&logo=github)](https://github.com/Nandhakish0r/Internet_of_Things-projects)
+
+</div>
+
+---
+
+## 📌 Overview
+
+This project implements an **automatic light control system** using a **Raspberry Pi Pico**, an **LDR (Light Dependent Resistor) sensor module**, and a **red LED**. The system continuously monitors ambient light levels — when it gets dark, the LED turns **ON** automatically; when light is detected, the LED turns **OFF**.
+
+It demonstrates core IoT concepts: **digital sensor reading**, **threshold-based actuation**, and **automatic environmental response** — similar to how streetlights and night lamps operate in real life.
+
+---
+
+## 🧠 Concept & Working Principle
+
+An **LDR (Light Dependent Resistor)** decreases in resistance as light intensity increases. The **LDR sensor module** outputs a **Digital Signal (DO)** — LOW when dark, HIGH when bright — based on a threshold set by the onboard potentiometer. The Raspberry Pi Pico reads this digital signal and controls the LED accordingly.
+
+### Working Pipeline
+
+```
+┌─────────────────┐   Light falls on LDR   ┌──────────────────────┐
+│  Ambient Light  │ ─────────────────────► │  LDR Sensor Module   │
+│  (Environment)  │                         │  DO: LOW  = Dark     │
+└─────────────────┘                         │  DO: HIGH = Bright   │
+                                            └──────────┬───────────┘
+                                                       │ GP27 (DO)
+                                                       ▼
+                                            ┌──────────────────────┐
+                                            │  Raspberry Pi Pico   │
+                                            │  digital_val = DO    │
+                                            └──────────┬───────────┘
+                                                       │
+                                    ┌──────────────────┴──────────────────┐
+                                    │                                     │
+                              DO == 0 (LOW)                         DO == 1 (HIGH)
+                               (DARK)                                 (BRIGHT)
+                                    │                                     │
+                                    ▼                                     ▼
+                           ┌────────────────┐                  ┌────────────────┐
+                           │  LED ON (GP0)  │                  │  LED OFF (GP0) │
+                           └────────────────┘                  └────────────────┘
+```
+
+### LDR Sensor Module Specs
+
+| Parameter | Value |
+|-----------|-------|
+| Output Type | Digital (DO) |
+| Operating Voltage | 3.3V – 5V |
+| Digital Threshold | Adjustable via onboard potentiometer |
+| DO Logic | LOW = Dark, HIGH = Bright |
+| ADC Range (AO) | 0 – 65535 (16-bit on Pico) |
+
+### Observed ADC Values (from Simulation)
+
+| Condition | ADC Reading | DO Signal | LED State |
+|-----------|:-----------:|:---------:|:---------:|
+| Bright (100000 lux) | ~65007 | HIGH | 🔴 OFF |
+| Dark (0 lux) | ~512 | LOW | 🔴 ON |
+
+---
+
+## 🔌 Circuit Diagram (Wokwi Simulation)
+
+> The circuit was first designed and tested on **Wokwi** before physical implementation.
+
+| Normal Mode | Dark Mode (LED ON) |
+|:-----------:|:------------------:|
+| ![Wokwi Simulation 1](raspi_ldr/tink1.png) | ![Wokwi Simulation 2](raspi_ldr/tink2.png) |
+
+*Fig 1 — Wokwi simulation: Raspberry Pi Pico + LDR sensor module + Red LED (left: bright, right: dark → LED ON)*
+
+### 📍 Pin Configuration
+
+| Pico Pin | Connected To | Purpose |
+|:--------:|:------------:|:--------|
+| `GP0` | LED Anode (+) | LED control output |
+| `GND` | LED Cathode (−) via 220Ω | LED ground |
+| `GP27` | LDR DO | Digital light threshold signal |
+| `3V3` | LDR VCC | Sensor power supply |
+| `GND` | LDR GND | Sensor ground |
+
+> **Note:** Only the **DO (Digital Output)** pin is used. The AO (Analog Output) pin is left unconnected. Pico ADC pins are limited to **GP26, GP27, GP28** — GP21 has no ADC capability.
+
+---
+
+## 🛠️ Hardware Setup
+
+> Physical build using **Raspberry Pi Pico**, **LDR sensor module**, **LED**, **220Ω resistor**, and jumper wires.
+
+<div align="center">
+
+![Hardware Setup](raspi_ldr/hw.png)
+
+*Fig 2 — Physical hardware: Raspberry Pi Pico with LDR sensor module and red LED*
+
+</div>
+
+---
+
+## 🧰 Components Required
+
+| Component | Qty | Purpose |
+|-----------|:---:|---------|
+| Raspberry Pi Pico | 1 | Main microcontroller (MicroPython) |
+| LDR Sensor Module | 1 | Ambient light detection (digital output) |
+| Red LED | 1 | Visual output indicator |
+| 220Ω Resistor | 1 | Current limiting for LED |
+| Breadboard | 1 | Prototyping base |
+| Jumper Wires | ~8 | Connections |
+| Micro-USB Cable | 1 | Power + code upload |
+
+---
+
+## 💻 MicroPython Code
+
+```python
+from machine import Pin, ADC
+import time
+
+# ── Pin Setup ──────────────────────────────────────────
+led    = Pin(0, Pin.OUT)    # LED on GP0
+ldr_do = Pin(27, Pin.IN)    # LDR Digital Output on GP27
+
+# ── Main Loop ──────────────────────────────────────────
+while True:
+    digital_val = ldr_do.value()   # LOW (0) = dark, HIGH (1) = bright
+
+    if digital_val == 0:           # DARK condition
+        led.value(1)               # LED ON
+        print("DARK  | LED: ON")
+    else:                          # BRIGHT condition
+        led.value(0)               # LED OFF
+        print("LIGHT | LED: OFF")
+
+    time.sleep(0.5)                # Poll every 500ms
+```
+
+> **Threshold tuning:** Use the **onboard potentiometer** on the LDR module to adjust the light sensitivity threshold — no code change needed. Turn clockwise to make it more sensitive (triggers in brighter light), counter-clockwise for less sensitive.
+
+> **ADC note:** `ADC(Pin(21))` causes a `ValueError` on Pico — GP21 has no ADC capability. Pico ADC-capable pins are **GP26 (ADC0), GP27 (ADC1), GP28 (ADC2)** only. This project uses the DO digital pin exclusively, avoiding ADC entirely.
+
+---
+
+## 🚀 How to Run
+
+### Option A — Simulate on Wokwi *(No hardware needed)*
+
+1. Go to [wokwi.com](https://wokwi.com) → **New Project** → **Raspberry Pi Pico**
+2. Paste the `diagram.json` wiring from this repo to set up the circuit automatically
+3. Create `main.py` → paste the MicroPython code above
+4. Click **▶ Run** → use the **LDR illumination slider** (lux) to vary light levels
+5. Drag slider left (dark) → LED turns ON; drag right (bright) → LED turns OFF
+
+### Option B — Upload to Physical Pico
+
+1. Flash MicroPython firmware: hold **BOOTSEL** on Pico → plug USB → drag `.uf2` from [micropython.org/download/rp2-pico](https://micropython.org/download/rp2-pico/)
+2. Install [Thonny IDE](https://thonny.org/)
+3. Build circuit per pin configuration table above
+4. Open Thonny → connect Pico → select **MicroPython (Raspberry Pi Pico)** interpreter
+5. Paste code → **Run** (`F5`) or save as `main.py` on Pico for auto-run on power-up
+6. Cover the LDR sensor with your hand → LED turns ON; uncover → LED turns OFF
+7. Adjust the **potentiometer** on the LDR module to calibrate the sensitivity threshold
+
+---
+
+## 🔍 Limitations & Future Scope
+
+**Current Limitations**
+- Digital-only output — no exact lux reading, just above/below threshold
+- Fixed trigger point — potentiometer must be adjusted manually for different environments
+- No hysteresis — possible LED flickering at the threshold boundary
+
+**Future Enhancements**
+- 📊 **Analog reading (GP26)** — use AO pin for precise lux measurement and variable response
+- 🖥️ **OLED display** — show live light level and current mode (DARK/LIGHT)
+- ⏱️ **Hysteresis** — add deadband in software to prevent flickering at threshold
+- 📡 **Pico W + Wi-Fi** — log light data to cloud dashboard (ThingSpeak, Blynk)
+- 🌙 **PWM dimming** — gradually dim/brighten LED proportionally to analog light level
+
+---
+
+## 👤 Author
+
+**Nandakishor** — Electronics & Communication Engineering  
+IIIT Kottayam | VLSI & Embedded Systems
+
+[![GitHub](https://img.shields.io/badge/GitHub-Nandhakish0r-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/Nandhakish0r)
+[![Repo](https://img.shields.io/badge/Repo-Internet__of__Things--projects-blue?style=flat-square&logo=github)](https://github.com/Nandhakish0r/Internet_of_Things-projects)
+
+---
+
+<div align="center">
+
+*Built with Raspberry Pi Pico · Part of the IoT Projects series*
+
+</div>
